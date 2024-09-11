@@ -29,10 +29,6 @@ jobs:
         env:
           PWS_URL: ${{ secrets.PWS_URL }}
         run: |
-          # Check if master branch exists locally
-
-          
-          # Switch to master branch
           git checkout master
 
           # Push to master branch and capture the output
