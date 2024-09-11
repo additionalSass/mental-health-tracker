@@ -13,36 +13,43 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
       - name: Set up Git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Check PWS remote, pull, merge, and push
+      - name: Deploy to PWS
         env:
           PWS_URL: ${{ secrets.PWS_URL }}
         run: |
-          # Check if master branch exists locally
-          if ! git show-ref --verify --quiet refs/heads/main; then
-            echo "Creating main branch"
-            git branch main
+          # Ensure we're on the main branch
+          git checkout main
+          
+          # Fetch all branches from PWS
+          git fetch $PWS_URL
+          
+          # Check if master branch exists on PWS
+          if git ls-remote --exit-code --heads $PWS_URL master; then
+            echo "master branch exists on PWS"
+            # Create a local master branch tracking PWS's master
+            git branch -t master $PWS_URL/master
+          else
+            echo "master branch does not exist on PWS, creating it"
+            git checkout -b master
           fi
           
-          # Switch to main branch
-          git checkout main
-
-          # Push to main branch and capture the output
-          push_output=$(git push $PWS_URL main 2>&1)
-          if [[ $? -ne 0 ]]; then
-            echo "Push failed with output: $push_output"
+          # Merge main into master
+          git checkout master
+          git merge main --no-edit
+          
+          # Push to PWS master branch
+          if git push $PWS_URL master; then
+            echo "Successfully pushed to PWS master branch"
+          else
             echo "Error: Unable to push changes. Please check the error message above and resolve any conflicts manually."
             exit 1
           fi
-          echo "Push successful with output: $push_output"
