@@ -8,7 +8,7 @@ def show_main(request):
     mood_entries = MoodEntry.objects.all()
     context = {
         'npm': '1906350603',
-        'name': 'Vander Gerald Sukandi ',
+        'name': 'Vander Gerald Sukandi',
         'class': 'PBP A',
         'mood_entries': mood_entries
     }
@@ -18,7 +18,7 @@ def show_main(request):
 def create_mood_entry(request):
     form = MoodEntryForm(request.POST or None)
 
-    if form.is_valid() and request.method == "POST":
+    if form.is_valid() and request.method == "POST" :
         form.save()
         return redirect('main:show_main')
 
