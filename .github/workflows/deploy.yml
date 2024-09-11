@@ -35,15 +35,16 @@ jobs:
           # Check if master branch exists on PWS
           if git ls-remote --exit-code --heads $PWS_URL master; then
             echo "master branch exists on PWS"
-            # Create a local master branch tracking PWS's master
-            git branch -t master $PWS_URL/master
+            # Create a local master branch
+            git branch -f master $PWS_URL/master
+            # Switch to master branch
+            git checkout master
           else
             echo "master branch does not exist on PWS, creating it"
             git checkout -b master
           fi
           
           # Merge main into master
-          git checkout master
           git merge main --no-edit
           
           # Push to PWS master branch
